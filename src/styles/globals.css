@@ -1,0 +1,772 @@
+:root,
+[data-theme='light'] {
+  /* ADS-aligned tokens (Atlassian Design System) */
+  --admin-bg: #f4f5f7;
+  --admin-surface: #ffffff;
+  --admin-surface-raised: #ffffff;
+  --admin-sidebar: #0052cc;
+  --admin-sidebar-hover: #0747a6;
+  --admin-sidebar-active: rgba(255, 255, 255, 0.15);
+  --admin-text: #172b4d;
+  --admin-text-muted: #6b778c;
+  --admin-text-disabled: #a5adba;
+  --admin-text-inverse: #ffffff;
+  --admin-text-link: #0052cc;
+  --admin-border: #dfe1e6;
+  --admin-border-focused: #0052cc;
+  --admin-border-input: #dfe1e6;
+  --admin-accent: #0052cc;
+  --admin-accent-hover: #0747a6;
+  --admin-accent-subtle: #deebff;
+  --admin-success: #00875a;
+  --admin-success-subtle: #e3fcef;
+  --admin-warning: #ff991f;
+  --admin-warning-subtle: #fffae6;
+  --admin-danger: #de350b;
+  --admin-danger-subtle: #ffebe6;
+  --admin-info: #0065ff;
+  --admin-info-subtle: #deebff;
+  --elevation-card: 0 1px 1px rgba(9, 30, 66, 0.25), 0 0 1px rgba(9, 30, 66, 0.31);
+  --elevation-raised: 0 4px 8px -2px rgba(9, 30, 66, 0.25), 0 0 1px rgba(9, 30, 66, 0.31);
+  --elevation-modal: 0 8px 16px -4px rgba(9, 30, 66, 0.25), 0 0 1px rgba(9, 30, 66, 0.31);
+  --admin-shadow-card: var(--elevation-card);
+  --admin-shadow-dropdown: var(--elevation-modal);
+  --admin-radius-card: 3px;
+  --admin-radius-control: 3px;
+  --admin-radius-badge: 2px;
+  --admin-radius-modal: 8px;
+  --admin-space-section: 24px;
+  --space-025: 2px;
+  --space-050: 4px;
+  --space-100: 8px;
+  --space-150: 12px;
+  --space-200: 16px;
+  --space-300: 24px;
+  --space-400: 32px;
+  --space-500: 40px;
+  --space-600: 48px;
+  --font-body: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --font-heading: 'Inter', sans-serif;
+  --admin-font: var(--font-body);
+}
+
+[data-theme='dark'] {
+  --admin-bg: #161a1d;
+  --admin-surface: #1d2125;
+  --admin-surface-raised: #22272b;
+  --admin-sidebar: #1d2125;
+  --admin-sidebar-hover: #282e33;
+  --admin-sidebar-active: #282e33;
+  --admin-text: #c7d1db;
+  --admin-text-muted: #8c9bab;
+  --admin-text-disabled: #4c6475;
+  --admin-text-inverse: #172b4d;
+  --admin-text-link: #4c9aff;
+  --admin-accent: #4c9aff;
+  --admin-accent-hover: #85b8ff;
+  --admin-accent-subtle: #1c2b41;
+  --admin-border: #2c333a;
+  --admin-border-input: #3b4045;
+  --admin-shadow-card: var(--elevation-card);
+  --admin-shadow-dropdown: var(--elevation-modal);
+}
+
+/* Admin app: Inter for UI; Alexandria for Arabic content where needed */
+body.admin-dashboard,
+body.admin-dashboard .admin-dashboard-scope,
+.admin-dashboard-scope {
+  font-family: var(--font-body);
+  font-size: 14px;
+  line-height: 20px;
+  color: var(--admin-text);
+  -webkit-font-smoothing: antialiased;
+}
+
+body.admin-dashboard .admin-dashboard-scope {
+  background: var(--admin-bg);
+  color: var(--admin-text);
+  min-height: 100%;
+}
+
+/* Form controls — admin scope */
+body.admin-dashboard .admin-input {
+  height: 40px;
+  border-radius: var(--admin-radius-control);
+  border: 2px solid var(--admin-border-input);
+  background: var(--admin-surface);
+  color: var(--admin-text);
+  padding: 0 12px;
+  font-size: 14px;
+  font-family: var(--font-body);
+  width: 100%;
+  outline: none;
+  transition: border-color 0.1s ease;
+}
+body.admin-dashboard .admin-input:hover {
+  border-color: #b3bac5;
+}
+[data-theme='dark'] body.admin-dashboard .admin-input:hover {
+  border-color: var(--admin-border-input);
+}
+body.admin-dashboard .admin-input::placeholder {
+  color: var(--admin-text-muted);
+}
+body.admin-dashboard .admin-input:focus {
+  border-color: var(--admin-border-focused);
+  background: var(--admin-surface);
+}
+body.admin-dashboard .admin-input:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+body.admin-dashboard .admin-btn,
+body.admin-dashboard .ads-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-050);
+  padding: 0 12px;
+  height: 32px;
+  border-radius: var(--admin-radius-control);
+  font-size: 14px;
+  font-weight: 500;
+  font-family: var(--font-body);
+  border: none;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.1s ease;
+}
+body.admin-dashboard .admin-btn-primary,
+body.admin-dashboard .ads-btn-primary {
+  background: var(--admin-accent);
+  color: #fff;
+}
+body.admin-dashboard .admin-btn-primary:hover,
+body.admin-dashboard .ads-btn-primary:hover {
+  background: var(--admin-accent-hover);
+}
+body.admin-dashboard .admin-btn-ghost,
+body.admin-dashboard .ads-btn-subtle {
+  background: var(--admin-accent-subtle);
+  color: var(--admin-accent);
+}
+body.admin-dashboard .admin-btn-ghost:hover,
+body.admin-dashboard .ads-btn-subtle:hover {
+  background: #b3d4ff;
+}
+body.admin-dashboard .ads-btn-danger {
+  background: var(--admin-danger);
+  color: #fff;
+}
+body.admin-dashboard .ads-btn-link {
+  background: transparent;
+  color: var(--admin-text-link);
+  padding: 0;
+  height: auto;
+}
+body.admin-dashboard .admin-btn:focus-visible,
+body.admin-dashboard .ads-btn:focus-visible {
+  outline: 2px solid var(--admin-border-focused);
+  outline-offset: 2px;
+}
+
+body.admin-dashboard .admin-page,
+body.admin-dashboard .admin-content {
+  width: 100%;
+  max-width: none;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-300);
+}
+
+/* ADS type scale */
+body.admin-dashboard .ads-text-xs { font-size: 11px; line-height: 16px; }
+body.admin-dashboard .ads-text-sm { font-size: 12px; line-height: 16px; }
+body.admin-dashboard .ads-heading-lg { font-size: 24px; line-height: 28px; font-weight: 500; }
+
+/* —— Toolbar & primary actions (full-width pages use these everywhere) —— */
+body.admin-dashboard .admin-toolbar-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-050);
+  min-height: 32px;
+  padding: 0 12px;
+  border-radius: var(--admin-radius-control);
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1.2;
+  border: none;
+  background: var(--admin-accent-subtle);
+  color: var(--admin-accent);
+  cursor: pointer;
+  text-decoration: none;
+  transition: background 0.1s ease;
+}
+body.admin-dashboard .admin-toolbar-btn:hover {
+  background: #b3d4ff;
+  color: var(--admin-accent);
+}
+body.admin-dashboard .admin-toolbar-btn:focus-visible {
+  outline: 2px solid var(--admin-border-focused);
+  outline-offset: 2px;
+}
+body.admin-dashboard .admin-toolbar-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+body.admin-dashboard .admin-toolbar-btn-accent {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-050);
+  min-height: 32px;
+  padding: 0 12px;
+  border-radius: var(--admin-radius-control);
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1.2;
+  border: none;
+  color: #fff;
+  cursor: pointer;
+  text-decoration: none;
+  background: var(--admin-accent);
+  transition: background 0.1s ease;
+}
+body.admin-dashboard .admin-toolbar-btn-accent:hover {
+  background: var(--admin-accent-hover);
+}
+body.admin-dashboard .admin-toolbar-btn-accent:focus-visible {
+  outline: 2px solid var(--admin-border-focused);
+  outline-offset: 2px;
+}
+body.admin-dashboard .admin-toolbar-btn-accent:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+  transform: none;
+  filter: none;
+  box-shadow: none;
+}
+
+/* Compact toolbar button */
+body.admin-dashboard .admin-toolbar-btn-sm {
+  min-height: 2.25rem;
+  padding: 0 0.75rem;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+/* Icon-only action buttons — tables & dense toolbars */
+body.admin-dashboard .admin-icon-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  min-width: 32px;
+  border-radius: var(--admin-radius-control);
+  border: none;
+  background: var(--admin-accent-subtle);
+  color: var(--admin-accent);
+  cursor: pointer;
+  transition: background 0.1s ease;
+}
+body.admin-dashboard .admin-icon-btn:hover {
+  background: #b3d4ff;
+  color: var(--admin-accent);
+}
+body.admin-dashboard .admin-icon-btn:focus-visible {
+  outline: 2px solid var(--admin-border-focused);
+  outline-offset: 2px;
+}
+body.admin-dashboard .admin-icon-btn-primary {
+  background: var(--admin-accent-subtle);
+  color: var(--admin-accent);
+}
+body.admin-dashboard .admin-icon-btn-primary:hover {
+  background: #b3d4ff;
+}
+[data-theme='dark'] body.admin-dashboard .admin-icon-btn-primary:hover {
+  background: rgba(99, 102, 241, 0.35);
+}
+body.admin-dashboard .admin-icon-btn-danger {
+  background: var(--admin-danger-subtle);
+  color: var(--admin-danger);
+}
+body.admin-dashboard .admin-icon-btn-danger:hover {
+  background: #ffbdad;
+}
+
+[data-theme='dark'] body.admin-dashboard .admin-toolbar-btn {
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.35);
+}
+[data-theme='dark'] body.admin-dashboard .admin-toolbar-btn:hover {
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.45);
+}
+[data-theme='dark'] body.admin-dashboard .admin-icon-btn {
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.35);
+}
+
+@keyframes admin-shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+.admin-skeleton {
+  background: linear-gradient(
+    90deg,
+    var(--admin-border) 0%,
+    rgba(148, 163, 184, 0.35) 50%,
+    var(--admin-border) 100%
+  );
+  background-size: 200% 100%;
+  animation: admin-shimmer 1.2s ease-in-out infinite;
+  border-radius: 8px;
+}
+
+[data-theme='dark'] .admin-skeleton {
+  background: linear-gradient(90deg, #334155 0%, #475569 50%, #334155 100%);
+  background-size: 200% 100%;
+}
+
+/* —— ADS legacy page compatibility (unmigrated inline markup) —— */
+body.admin-dashboard .admin-dashboard-scope .admin-legacy-panel,
+body.admin-dashboard .admin-dashboard-scope .bg-white.rounded-lg,
+body.admin-dashboard .admin-dashboard-scope .bg-white.rounded-2xl {
+  background-color: var(--admin-surface) !important;
+  border-radius: var(--admin-radius-card) !important;
+  border: 1px solid var(--admin-border);
+  box-shadow: var(--elevation-card);
+}
+
+body.admin-dashboard .admin-dashboard-scope .rounded-2xl {
+  border-radius: var(--admin-radius-modal) !important;
+}
+
+body.admin-dashboard .admin-dashboard-scope [class*='bg-gradient-to'] {
+  background: var(--admin-accent) !important;
+  background-image: none !important;
+  color: #fff !important;
+  border-radius: var(--admin-radius-control) !important;
+  box-shadow: none !important;
+  transform: none !important;
+}
+
+body.admin-dashboard .admin-dashboard-scope .text-gray-800,
+body.admin-dashboard .admin-dashboard-scope .text-gray-700,
+body.admin-dashboard .admin-dashboard-scope .text-gray-900 {
+  color: var(--admin-text) !important;
+}
+
+body.admin-dashboard .admin-dashboard-scope .text-gray-500,
+body.admin-dashboard .admin-dashboard-scope .text-gray-600 {
+  color: var(--admin-text-muted) !important;
+}
+
+body.admin-dashboard .admin-dashboard-scope .border-gray-200,
+body.admin-dashboard .admin-dashboard-scope .border-gray-300 {
+  border-color: var(--admin-border) !important;
+}
+
+body.admin-dashboard .admin-dashboard-scope .border-t-2.border-b-2.border-\[\#2d2871\],
+body.admin-dashboard .admin-dashboard-scope .border-\[\#2d2871\] {
+  border-color: var(--admin-accent) !important;
+}
+
+body.admin-dashboard .admin-modal-overlay {
+  background-color: rgba(9, 30, 66, 0.54);
+}
+
+body.admin-dashboard .admin-modal-panel {
+  background: var(--admin-surface);
+  border-radius: var(--admin-radius-modal);
+  box-shadow: var(--elevation-modal);
+}
+
+/* —— Full-width modern tables (all admin pages) —— */
+body.admin-dashboard .ui-table-wrap {
+  width: 100%;
+  overflow-x: visible;
+}
+
+body.admin-dashboard .admin-dashboard-scope .admin-table-wrap {
+  width: 100%;
+  overflow-x: visible;
+  border-radius: var(--admin-radius-card);
+  border: 1px solid var(--admin-border);
+  background: var(--admin-surface);
+  box-shadow: var(--elevation-card);
+}
+
+body.admin-dashboard .admin-dashboard-scope .overflow-x-auto:has(.ui-table),
+body.admin-dashboard .admin-dashboard-scope .overflow-x-auto:has(table.ui-table) {
+  width: 100%;
+  overflow-x: visible;
+  border: none;
+  box-shadow: none;
+  background: transparent;
+}
+
+body.admin-dashboard .admin-data-panel .overflow-x-auto:has(table) {
+  border: none;
+  box-shadow: none;
+  border-radius: 0;
+  background: transparent;
+}
+
+body.admin-dashboard .admin-dashboard-scope table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+
+body.admin-dashboard .admin-dashboard-scope table thead,
+body.admin-dashboard .admin-dashboard-scope table thead tr {
+  background: var(--admin-bg) !important;
+  background-image: none !important;
+}
+
+body.admin-dashboard .admin-dashboard-scope table thead th {
+  padding: 10px 12px !important;
+  text-align: start;
+  font-size: 11px !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--admin-text-muted) !important;
+  border-bottom: 2px solid var(--admin-border) !important;
+  white-space: nowrap;
+}
+
+body.admin-dashboard .admin-dashboard-scope table tbody td {
+  padding: 10px 12px !important;
+  color: var(--admin-text);
+  border-bottom: 1px solid var(--admin-border);
+  vertical-align: middle;
+}
+
+body.admin-dashboard .admin-dashboard-scope table tbody tr:hover {
+  background: color-mix(in srgb, var(--admin-bg) 80%, var(--admin-surface));
+}
+
+body.admin-dashboard .admin-dashboard-scope table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+/* Inputs inside admin scope (legacy pages) */
+body.admin-dashboard .admin-dashboard-scope input:not([type='checkbox']):not([type='radio']):not([type='file']):not(.admin-input):not(.admin-login-v2__input-field),
+body.admin-dashboard .admin-dashboard-scope select:not(.admin-input),
+body.admin-dashboard .admin-dashboard-scope textarea:not(.admin-input) {
+  height: 40px;
+  border-radius: var(--admin-radius-control);
+  border: 2px solid var(--admin-border-input);
+  background: var(--admin-surface);
+  color: var(--admin-text);
+  padding: 0 12px;
+  font-size: 14px;
+  font-family: var(--font-body);
+  width: 100%;
+  outline: none;
+}
+
+body.admin-dashboard .admin-dashboard-scope textarea:not(.admin-input) {
+  height: auto;
+  min-height: 88px;
+  padding: 10px 12px;
+}
+
+body.admin-dashboard .admin-dashboard-scope select:not(.admin-input) {
+  cursor: pointer;
+}
+
+body.admin-dashboard .admin-dashboard-scope label {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--admin-text);
+  letter-spacing: 0.02em;
+}
+
+/* Filter / toolbar bars */
+body.admin-dashboard .admin-filter-bar {
+  display: grid;
+  gap: var(--space-200);
+  padding: var(--space-200);
+  background: var(--admin-surface);
+  border: 1px solid var(--admin-border);
+  border-radius: var(--admin-radius-card);
+  box-shadow: var(--elevation-card);
+}
+
+@media (min-width: 768px) {
+  body.admin-dashboard .admin-filter-bar {
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  }
+}
+
+/* Stat count badge next to titles */
+body.admin-dashboard .admin-count-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 8px;
+  border-radius: var(--admin-radius-badge);
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  background: var(--admin-accent-subtle);
+  color: var(--admin-accent);
+}
+
+/* Hide duplicate in-page H1/H2 when PageHeader is shown */
+body.admin-dashboard .admin-page .admin-hide-page-title {
+  display: none !important;
+}
+
+/* —— Modern ADS table (explicit pages) —— */
+body.admin-dashboard .admin-table-shell {
+  border: 1px solid var(--admin-border);
+  border-radius: var(--admin-radius-card);
+  background: var(--admin-surface);
+  box-shadow: var(--elevation-card);
+}
+
+body.admin-dashboard .admin-modern-table thead th {
+  padding: 12px 16px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--admin-text-muted);
+  background: var(--admin-bg);
+  border-bottom: 2px solid var(--admin-border);
+  text-align: start;
+  white-space: nowrap;
+}
+
+body.admin-dashboard .admin-modern-table tbody td {
+  padding: 12px 16px;
+  font-size: 14px;
+  color: var(--admin-text);
+  border-bottom: 1px solid var(--admin-border);
+  vertical-align: middle;
+}
+
+body.admin-dashboard .admin-modern-table tbody tr:hover td {
+  background: color-mix(in srgb, var(--admin-accent-subtle) 35%, var(--admin-surface));
+}
+
+body.admin-dashboard .admin-modern-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+/* —— Unified data panel (Users, Bookings, etc.) —— */
+body.admin-dashboard .admin-data-panel {
+  width: 100%;
+  background: var(--admin-surface);
+  border: 1px solid var(--admin-border);
+  border-radius: 8px;
+  box-shadow: var(--elevation-card);
+  overflow: hidden;
+}
+
+body.admin-dashboard .admin-data-panel__toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 16px;
+  padding: 16px 20px;
+  background: var(--admin-bg);
+  border-bottom: 1px solid var(--admin-border);
+}
+
+body.admin-dashboard .admin-data-panel__toolbar-field {
+  flex: 1 1 220px;
+  min-width: 0;
+}
+
+body.admin-dashboard .admin-data-panel__toolbar-field--sm {
+  flex: 0 1 200px;
+}
+
+body.admin-dashboard .admin-data-panel__toolbar label {
+  display: block;
+  margin-bottom: 6px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--admin-text-muted);
+}
+
+body.admin-dashboard .admin-data-panel .admin-modern-table thead th {
+  padding: 14px 20px !important;
+  font-size: 11px !important;
+  background: var(--admin-surface) !important;
+  border-bottom: 1px solid var(--admin-border) !important;
+  color: var(--admin-text-muted) !important;
+}
+
+body.admin-dashboard .admin-data-panel .admin-modern-table tbody td {
+  padding: 14px 20px !important;
+  font-size: 14px;
+  border-bottom: 1px solid var(--admin-border);
+}
+
+body.admin-dashboard .admin-data-panel .admin-modern-table tbody tr:hover td {
+  background: #f4f5f7;
+}
+
+body.admin-dashboard .admin-data-panel .admin-modern-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+body.admin-dashboard .admin-user-cell {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+}
+
+body.admin-dashboard .admin-user-avatar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: var(--admin-accent-subtle);
+  color: var(--admin-accent);
+  font-size: 14px;
+  font-weight: 600;
+  flex-shrink: 0;
+  overflow: hidden;
+}
+
+body.admin-dashboard .admin-user-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+body.admin-dashboard .admin-user-name {
+  font-weight: 600;
+  color: var(--admin-text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+body.admin-dashboard .admin-row-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 6px;
+}
+
+body.admin-dashboard .admin-skeleton-row td {
+  padding: 14px 20px !important;
+}
+
+body.admin-dashboard .admin-skeleton-bar {
+  height: 14px;
+  border-radius: 4px;
+  background: var(--admin-border);
+  animation: admin-shimmer 1.2s ease-in-out infinite;
+}
+
+body.admin-dashboard .admin-page-btn {
+  min-width: 32px;
+  height: 32px;
+  padding: 0 8px;
+  border-radius: var(--admin-radius-control);
+  border: 1px solid var(--admin-border);
+  background: var(--admin-surface);
+  color: var(--admin-text);
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.1s ease, border-color 0.1s ease;
+}
+
+body.admin-dashboard .admin-page-btn:hover {
+  background: var(--admin-bg);
+  border-color: #b3bac5;
+}
+
+body.admin-dashboard .admin-page-btn-active {
+  background: var(--admin-accent);
+  border-color: var(--admin-accent);
+  color: #fff;
+}
+
+body.admin-dashboard .admin-page-btn-active:hover {
+  background: var(--admin-accent-hover);
+}
+
+/* Dashboard quick links */
+body.admin-dashboard .admin-quick-link {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  width: 100%;
+  padding: 16px;
+  text-align: start;
+  border: 1px solid var(--admin-border);
+  border-radius: var(--admin-radius-card);
+  background: var(--admin-surface);
+  box-shadow: var(--elevation-card);
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+  cursor: pointer;
+}
+
+body.admin-dashboard .admin-quick-link:hover {
+  border-color: var(--admin-accent);
+  box-shadow: var(--elevation-raised);
+}
+
+body.admin-dashboard .admin-quick-link-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: var(--admin-radius-control);
+  background: var(--admin-accent-subtle);
+  color: var(--admin-accent);
+  flex-shrink: 0;
+}
+
+body.admin-dashboard .admin-filter-grid {
+  display: grid;
+  gap: var(--space-200);
+  grid-template-columns: 1fr;
+}
+
+@media (min-width: 640px) {
+  body.admin-dashboard .admin-filter-grid {
+    grid-template-columns: 1fr 220px;
+  }
+}
+
+body.admin-dashboard .admin-form-grid {
+  display: grid;
+  gap: var(--space-200);
+}
+
+@media (min-width: 640px) {
+  body.admin-dashboard .admin-form-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+body.admin-dashboard .admin-form-grid .span-2 {
+  grid-column: 1 / -1;
+}
