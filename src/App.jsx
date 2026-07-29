@@ -128,8 +128,10 @@ function AppRoutes() {
           
           {/* Root path - Always redirect to admin/login */}
           <Route
-            path="/"
-            element={<Navigate to="/admin/login" replace />}
+            path="/"Something went wrong
+Element type is invalid: expected a string (for built-in components) or a class/function (for composite components) but got: undefined. You likely forgot to export your component from the file it's defined in, or you might have mixed up default and named imports. Check the render method of `Home`.
+
+Reload Page
           />
           
           {/* Home route - Protected */}

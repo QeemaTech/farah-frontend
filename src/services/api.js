@@ -53,6 +53,7 @@ export const authAPI = {
     getMe: () => apiClient.get('/auth/me'),
     updateProfile: (data) => apiClient.patch('/auth/me', data),
     deleteAccount: () => apiClient.delete('/auth/me'),
+    logout: () => apiClient.post('/auth/logout'),
 };
 
 // Payment API

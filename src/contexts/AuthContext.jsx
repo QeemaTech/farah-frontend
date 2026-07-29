@@ -1,4 +1,5 @@
 import { createContext, useContext, useState, useEffect } from 'react'
+import { authAPI } from '../services/api'
 
 const AuthContext = createContext(null)
 
@@ -33,7 +34,12 @@ export function AuthProvider({ children }) {
     localStorage.setItem('token', token)
   }
 
-  const logout = () => {
+  const logout = async () => {
+    try {
+      await authAPI.logout()
+    } catch {
+      // Clear local session even if the API call fails
+    }
     setUser(null)
     setIsAuthenticated(false)
     localStorage.removeItem('user')
