@@ -3,6 +3,7 @@ import { useNavigate, useLocation } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext'
 import axios from 'axios'
 import StatusBar from '../components/StatusBar'
+import { resolvePostAuthPath } from '../utils/authRoutes'
 
 function OTP() {
   const navigate = useNavigate()
@@ -160,16 +161,21 @@ function OTP() {
         
         // Login user immediately
         login(user, token)
-        
-        // Check if location permission was already granted
+
+        const destination = resolvePostAuthPath(user, location.state?.from?.pathname)
         const locationPermission = localStorage.getItem('location_permission_granted')
-        
-        // If location permission not granted, redirect to location permission page
-        if (!locationPermission || locationPermission === 'denied') {
-          navigate('/location-permission', { replace: true })
+        const needsLocation =
+          !locationPermission &&
+          !destination.startsWith('/provider') &&
+          !destination.startsWith('/admin')
+
+        if (needsLocation) {
+          navigate('/location-permission', {
+            replace: true,
+            state: { from: { pathname: destination } },
+          })
         } else {
-          // Always redirect to home after successful login (not to splash or root)
-          navigate('/home', { replace: true })
+          navigate(destination, { replace: true })
         }
       } else {
         throw new Error('Invalid response format')

@@ -44,8 +44,6 @@ export function AuthProvider({ children }) {
     setIsAuthenticated(false)
     localStorage.removeItem('user')
     localStorage.removeItem('token')
-    // Reset onboarding to show it again after logout
-    localStorage.removeItem('onboarding_completed')
   }
 
   const updateUser = (userData) => {

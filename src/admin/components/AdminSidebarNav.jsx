@@ -3,8 +3,7 @@ import { useNavigate, useLocation } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { ChevronDown, LayoutDashboard } from 'lucide-react'
 import { NAV_SECTION_ICONS } from '../../components/layout/navConfig'
-
-const DASHBOARD_PATH = '/admin/dashboard'
+import { getPortalHomePath, readAdminUser } from '../utils/adminSession'
 
 function pathMatches(locationPath, itemPath) {
   return locationPath === itemPath || locationPath.startsWith(`${itemPath}/`)
@@ -30,13 +29,14 @@ export default function AdminSidebarNav({
   const navigate = useNavigate()
   const location = useLocation()
   const rtl = i18n.language === 'ar'
+  const dashboardPath = getPortalHomePath(readAdminUser())
 
   const [expanded, setExpanded] = useState(() => new Set())
   const [flyoutSection, setFlyoutSection] = useState(null)
   const flyoutRef = useRef(null)
   const triggerRefs = useRef({})
 
-  const dashboardItem = sections.flatMap((s) => s.items).find((i) => i.path === DASHBOARD_PATH)
+  const dashboardItem = sections.flatMap((s) => s.items).find((i) => i.path === dashboardPath)
 
   const navPaths = useMemo(() => {
     const paths = sections.flatMap((s) => s.items.map((i) => i.path))
@@ -49,10 +49,10 @@ export default function AdminSidebarNav({
       sections
         .map((section) => ({
           ...section,
-          items: section.items.filter((i) => i.path !== DASHBOARD_PATH),
+          items: section.items.filter((i) => i.path !== dashboardPath),
         }))
         .filter((s) => s.items.length > 0),
-    [sections]
+    [sections, dashboardPath]
   )
 
   useEffect(() => {

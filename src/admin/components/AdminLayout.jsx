@@ -12,7 +12,7 @@ import { filterAdminNav, NAV_SECTION_ORDER, NAV_SECTION_LABELS } from '../../com
 import AdminSidebarNav from './AdminSidebarNav'
 import PageHeader from '../../components/ui/PageHeader'
 import LoadingSkeleton from '../../components/ui/LoadingSkeleton'
-import { readAdminUser, isFullAdminUser, getAdminToken, API_URL } from '../utils/adminSession'
+import { readAdminUser, isFullAdminUser, getAdminToken, API_URL, getPortalHomePath, getPortalLoginPath } from '../utils/adminSession'
 import { formatImageSrc } from '../../utils/imageUtils'
 import { useAdminPageContext } from '../contexts/AdminPageContext'
 import { resetAdminSessionBootstrap } from './AdminRoute'
@@ -73,22 +73,32 @@ function AdminLayout({ children }) {
       try {
         const token = getAdminToken()
         if (!token) return
-        const [logoResponse, meResponse] = await Promise.all([
-          axios.get(`${API_URL}/settings`, { timeout: 5000 }),
-          axios
-            .get(`${API_URL}/auth/admin/me`, {
-              headers: { Authorization: `Bearer ${token}` },
-              timeout: 8000,
-            })
-            .catch((err) => {
-              if (err.response?.status === 401 || err.response?.status === 403) {
-                localStorage.removeItem('admin_token')
-                localStorage.removeItem('admin_user')
-                window.location.href = '/admin/login'
-              }
-              return null
-            }),
-        ])
+        const storedUser = readAdminUser()
+        const isVendorAuth = storedUser?.authSource === 'vendor'
+
+        const logoPromise = axios.get(`${API_URL}/settings`, { timeout: 5000 })
+        const mePromise = isVendorAuth
+          ? axios
+              .get(`${API_URL}/mobile/vendor/profile`, {
+                headers: { Authorization: `Bearer ${token}` },
+                timeout: 8000,
+              })
+              .catch(() => null)
+          : axios
+              .get(`${API_URL}/auth/admin/me`, {
+                headers: { Authorization: `Bearer ${token}` },
+                timeout: 8000,
+              })
+              .catch((err) => {
+                if (err.response?.status === 401 || err.response?.status === 403) {
+                  localStorage.removeItem('admin_token')
+                  localStorage.removeItem('admin_user')
+                  window.location.href = getPortalLoginPath(window.location.pathname)
+                }
+                return null
+              })
+
+        const [logoResponse, meResponse] = await Promise.all([logoPromise, mePromise])
         const s = logoResponse.data.settings
         if (s) {
           setBrand({
@@ -98,13 +108,30 @@ function AdminLayout({ children }) {
             appNameAr: s.appNameAr || '',
           })
         }
-        if (meResponse?.data?.success && meResponse.data.user) {
+        if (isVendorAuth && meResponse?.data) {
+          const v = meResponse.data.vendor || meResponse.data
+          const merged = {
+            ...storedUser,
+            ...v,
+            id: v.id || storedUser?.id,
+            name: v.name || v.businessName || storedUser?.name,
+            role: 'PROVIDER',
+            vendorType: v.vendorType ?? storedUser?.vendorType ?? null,
+            vendorStatus: v.status ?? storedUser?.vendorStatus ?? null,
+            isFullAdmin: false,
+            authSource: 'vendor',
+          }
+          setUser(merged)
+          setProfileImage(merged.avatar)
+          localStorage.setItem('admin_user', JSON.stringify(merged))
+        } else if (meResponse?.data?.success && meResponse.data.user) {
           const merged = {
             ...meResponse.data.user,
             vendorType: meResponse.data.vendorType ?? null,
             vendorStatus: meResponse.data.vendorStatus ?? null,
             permissions: meResponse.data.permissions ?? null,
             isFullAdmin: !!meResponse.data.isFullAdmin,
+            authSource: 'admin',
           }
           setUser(merged)
           setProfileImage(merged.avatar)
@@ -117,7 +144,7 @@ function AdminLayout({ children }) {
               })
               .catch(() => null)
             if (profileResponse?.data?.user) {
-              const u2 = { ...merged, ...profileResponse.data.user, isFullAdmin: true }
+              const u2 = { ...merged, ...profileResponse.data.user, isFullAdmin: true, authSource: 'admin' }
               setUser(u2)
               setProfileImage(u2.avatar)
               localStorage.setItem('admin_user', JSON.stringify(u2))
@@ -200,7 +227,7 @@ function AdminLayout({ children }) {
     layoutBootstrap.fetched = false
     layoutBootstrap.fetching = false
     resetAdminSessionBootstrap()
-    navigate('/admin/login')
+    navigate(getPortalLoginPath(location.pathname))
   }
 
   const filteredMenu = useMemo(
@@ -274,7 +301,7 @@ function AdminLayout({ children }) {
         <div className="admin-sidebar-brand">
           <button
             type="button"
-            onClick={() => navigate('/admin/dashboard')}
+            onClick={() => navigate(getPortalHomePath(user || readAdminUser()))}
             className={`admin-sidebar-brand__inner ${sidebarOpen ? '' : 'admin-sidebar-brand__inner--collapsed'}`}
             title={brandName}
           >

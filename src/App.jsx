@@ -33,7 +33,6 @@ import OTP from './pages/OTP'
 import ForgotPassword from './pages/ForgotPassword'
 import ResetPassword from './pages/ResetPassword'
 import Payment from './pages/Payment'
-import ProviderDashboard from './pages/ProviderDashboard'
 import Onboarding from './pages/Onboarding'
 import SplashScreen from './pages/SplashScreen'
 import LocationPermission from './pages/LocationPermission'
@@ -41,8 +40,6 @@ import Notifications from './pages/Notifications'
 import SlaughterCalculator from './pages/SlaughterCalculator'
 import SlaughterResult from './pages/SlaughterResult'
 import SlaughterOrder from './pages/SlaughterOrder'
-import VendorSlaughterProducts from './pages/VendorSlaughterProducts'
-import VendorSlaughterOrders from './pages/VendorSlaughterOrders'
 import OnboardingGuard from './components/OnboardingGuard'
 import ProtectedRoute from './components/ProtectedRoute'
 import PublicRoute from './components/PublicRoute'
@@ -126,12 +123,10 @@ function AppRoutes() {
             } 
           />
           
-          {/* Root path - Always redirect to admin/login */}
+          {/* Root — mobile entry; OnboardingGuard / auth decide next step */}
           <Route
-            path="/"Something went wrong
-Element type is invalid: expected a string (for built-in components) or a class/function (for composite components) but got: undefined. You likely forgot to export your component from the file it's defined in, or you might have mixed up default and named imports. Check the render method of `Home`.
-
-Reload Page
+            path="/"
+            element={<Navigate to="/splash" replace />}
           />
           
           {/* Home route - Protected */}
@@ -151,14 +146,8 @@ Reload Page
               </ProtectedRoute>
             }
           />
-          <Route
-            path="/provider/dashboard"
-            element={
-              <ProtectedRoute>
-                <ProviderDashboard />
-              </ProtectedRoute>
-            }
-          />
+          {/* Vendor portal (PROVIDER) — same AdminApp shell, /provider/* URLs */}
+          <Route path="/provider/*" element={<AdminApp />} />
           <Route
             path="/home"
             element={
@@ -419,31 +408,13 @@ Reload Page
           }
         />
         
-        {/* Vendor Slaughter Management Routes */}
-        <Route
-          path="/provider/slaughter/products"
-          element={
-            <ProtectedRoute>
-              <VendorSlaughterProducts />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/provider/slaughter/orders"
-          element={
-            <ProtectedRoute>
-              <VendorSlaughterOrders />
-            </ProtectedRoute>
-          }
-        />
-
-        {/* Admin Routes - completely separate */}
+        {/* Admin / vendor portal */}
         <Route path="/admin/*" element={<AdminApp />} />
         
-          {/* Catch all - redirect to admin/login */}
+          {/* Catch all — fall back to splash entry */}
           <Route
             path="*"
-            element={<Navigate to="/admin/login" replace />}
+            element={<Navigate to="/splash" replace />}
           />
         </Routes>
       </OnboardingGuard>

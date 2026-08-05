@@ -4,13 +4,14 @@ import { useAuth } from '../contexts/AuthContext'
 import axios from 'axios'
 import StatusBar from '../components/StatusBar'
 import { countryCodes, getDefaultCountry } from '../utils/countryCodes'
+import { resolvePostAuthPath } from '../utils/authRoutes'
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8001/api'
 
 function Register() {
   const navigate = useNavigate()
   const location = useLocation()
-  const { isAuthenticated, loading: authLoading, login } = useAuth()
+  const { user, isAuthenticated, loading: authLoading, login } = useAuth()
   const [formData, setFormData] = useState({
     name: '',
     nameAr: '',
@@ -29,10 +30,9 @@ function Register() {
   useEffect(() => {
     // Redirect if already authenticated
     if (!authLoading && isAuthenticated) {
-      const from = location.state?.from?.pathname || '/'
-      navigate(from, { replace: true })
+      navigate(resolvePostAuthPath(user, location.state?.from?.pathname), { replace: true })
     }
-  }, [isAuthenticated, authLoading, navigate, location.state?.from?.pathname])
+  }, [isAuthenticated, authLoading, navigate, location.state?.from?.pathname, user])
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -121,16 +121,21 @@ function Register() {
         
         // Login user immediately
         login(user, token)
-        
-        // Check if location permission was already granted
+
+        const destination = resolvePostAuthPath(user, location.state?.from?.pathname)
         const locationPermission = localStorage.getItem('location_permission_granted')
-        
-        // If location permission not granted, redirect to location permission page
-        if (!locationPermission || locationPermission === 'denied') {
-          navigate('/location-permission', { replace: true })
+        const needsLocation =
+          !locationPermission &&
+          !destination.startsWith('/provider') &&
+          !destination.startsWith('/admin')
+
+        if (needsLocation) {
+          navigate('/location-permission', {
+            replace: true,
+            state: { from: { pathname: destination } },
+          })
         } else {
-          // Always redirect to home after successful registration
-          navigate('/home', { replace: true })
+          navigate(destination, { replace: true })
         }
       }
     } catch (error) {

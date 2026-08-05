@@ -4,11 +4,12 @@ import { useAuth } from '../contexts/AuthContext'
 import axios from 'axios'
 import StatusBar from '../components/StatusBar'
 import { countryCodes, getDefaultCountry } from '../utils/countryCodes'
+import { resolvePostAuthPath } from '../utils/authRoutes'
 
 function Login() {
   const navigate = useNavigate()
   const location = useLocation()
-  const { isAuthenticated, loading: authLoading } = useAuth()
+  const { user, isAuthenticated, loading: authLoading } = useAuth()
   const [phone, setPhone] = useState('010 1280 4721')
   const [selectedCountry, setSelectedCountry] = useState(getDefaultCountry())
   const [showCountryDropdown, setShowCountryDropdown] = useState(false)
@@ -20,10 +21,9 @@ function Login() {
   useEffect(() => {
     // Redirect if already authenticated
     if (!authLoading && isAuthenticated) {
-      const from = location.state?.from?.pathname || '/'
-      navigate(from, { replace: true })
+      navigate(resolvePostAuthPath(user, location.state?.from?.pathname), { replace: true })
     }
-  }, [isAuthenticated, authLoading, navigate, location.state?.from?.pathname])
+  }, [isAuthenticated, authLoading, navigate, location.state?.from?.pathname, user])
 
   // Close dropdown when clicking outside
   useEffect(() => {

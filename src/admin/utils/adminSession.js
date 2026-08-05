@@ -60,6 +60,50 @@ export function usesProviderApis(user = readAdminUser()) {
 
 
 
+/** Home path after login: vendors use /provider/*, full admins use /admin/* */
+
+export function getPortalHomePath(user = readAdminUser()) {
+
+  return usesProviderApis(user) ? '/provider/dashboard' : '/admin/dashboard'
+
+}
+
+
+
+/** Login URL for the current portal (/provider/* → /provider/login) */
+
+export function getPortalLoginPath(pathname = '') {
+
+  if (typeof pathname === 'string' && pathname.startsWith('/provider')) {
+
+    return '/provider/login'
+
+  }
+
+  return '/admin/login'
+
+}
+
+
+
+/** Rewrite /admin/... → /provider/... for vendor portal URLs */
+
+export function toPortalPath(path, user = readAdminUser()) {
+
+  if (!path || typeof path !== 'string') return path
+
+  if (usesProviderApis(user) && path.startsWith('/admin')) {
+
+    return `/provider${path.slice('/admin'.length)}` || '/provider/dashboard'
+
+  }
+
+  return path
+
+}
+
+
+
 /** Normalize API boolean fields (true, "true", false, "false", 0, 1). */
 
 export function parseAdminBoolean(value) {
@@ -91,6 +135,14 @@ export function hasPermission(user, resource, action) {
   if (!user) return false
 
   if (isFullAdminUser(user)) return true
+
+  // Vendor portal sessions (mobile vendor auth) may not include RBAC lists
+  if (usesProviderApis(user)) {
+    const list = user.permissions
+    if (!Array.isArray(list) || list.length === 0) return true
+    if (resource === 'admin' && action === 'dashboard') return true
+    return list.some((p) => p.resource === resource && p.action === action)
+  }
 
   const list = user.permissions
 

@@ -1,11 +1,19 @@
 import { useState, useEffect } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useLocation } from 'react-router-dom'
 import StatusBar from '../components/StatusBar'
+import { useAuth } from '../contexts/AuthContext'
+import { resolvePostAuthPath } from '../utils/authRoutes'
 
 function LocationPermission() {
   const navigate = useNavigate()
+  const location = useLocation()
+  const { user } = useAuth()
   const [userLocation, setUserLocation] = useState(null)
   const [mapCenter, setMapCenter] = useState({ lat: 24.7136, lng: 46.6753 }) // Riyadh default
+
+  const goNext = () => {
+    navigate(resolvePostAuthPath(user, location.state?.from?.pathname), { replace: true })
+  }
 
   useEffect(() => {
     // Try to get user's current location if permission already granted
@@ -33,19 +41,15 @@ function LocationPermission() {
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
         (position) => {
-          // Save location permission status
           localStorage.setItem('location_permission_granted', 'true')
           localStorage.setItem('user_latitude', position.coords.latitude.toString())
           localStorage.setItem('user_longitude', position.coords.longitude.toString())
-          
-          // Navigate to home
-          navigate('/home', { replace: true })
+          goNext()
         },
         (error) => {
           console.error('Error getting location:', error)
-          // Even if there's an error, allow user to proceed
           localStorage.setItem('location_permission_granted', 'true')
-          navigate('/home', { replace: true })
+          goNext()
         },
         {
           enableHighAccuracy: true,
@@ -54,16 +58,14 @@ function LocationPermission() {
         }
       )
     } else {
-      // Geolocation not supported
       localStorage.setItem('location_permission_granted', 'true')
-      navigate('/home', { replace: true })
+      goNext()
     }
   }
 
   const handleDenyLocation = () => {
-    // Save that user denied permission
     localStorage.setItem('location_permission_granted', 'denied')
-    navigate('/home', { replace: true })
+    goNext()
   }
 
   // Generate Google Maps embed URL (using public embed API - no key needed for basic embed)

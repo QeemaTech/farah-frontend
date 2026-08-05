@@ -1,21 +1,38 @@
 import { useState, useEffect } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useLocation } from 'react-router-dom'
 import axios from 'axios'
 import { useTranslation } from 'react-i18next'
-import { Mail, Lock, Eye, EyeOff, Shield, Loader2, Sparkles, ArrowRight } from 'lucide-react'
+import { Mail, Lock, Eye, EyeOff, Shield, Loader2, Sparkles, ArrowRight, Phone } from 'lucide-react'
 import ThemeToggle from '../../components/ui/ThemeToggle'
 import LanguageSwitcher from '../../components/ui/LanguageSwitcher'
 import { PoweredByFooter } from '../../components/ui/PoweredByFooter'
 import { formatImageSrc } from '../../utils/imageUtils'
-import { API_URL } from '../utils/adminSession'
+import { API_URL, getPortalHomePath, toPortalPath } from '../utils/adminSession'
 import { resetAdminSessionBootstrap } from '../components/AdminRoute'
+
+function extractErrorMessage(err, fallback) {
+  const data = err.response?.data
+  if (!data) return fallback
+  if (typeof data.error === 'string') return data.error
+  if (typeof data.message === 'string') return data.message
+  if (Array.isArray(data.errors) && data.errors.length) {
+    return data.errors.map((e) => e.message || e.msg || String(e)).join(' · ')
+  }
+  if (data.error && typeof data.error === 'object') {
+    return data.error.message || JSON.stringify(data.error)
+  }
+  return fallback
+}
 
 export default function AdminLogin() {
   const navigate = useNavigate()
+  const location = useLocation()
   const { t, i18n } = useTranslation()
   const rtl = i18n.language === 'ar'
+  const isVendorPortal = location.pathname.startsWith('/provider')
 
   const [email, setEmail] = useState('')
+  const [phone, setPhone] = useState('')
   const [password, setPassword] = useState('')
   const [loading, setLoading] = useState(false)
   const [logoLoading, setLogoLoading] = useState(true)
@@ -74,42 +91,93 @@ export default function AdminLogin() {
     t('adminLogin.title')
   const logoSrc = brand.logo ? formatImageSrc(brand.logo) : null
 
+  const finishLogin = (merged, authToken) => {
+    resetAdminSessionBootstrap()
+    localStorage.setItem('admin_token', authToken)
+    localStorage.setItem('admin_user', JSON.stringify(merged))
+
+    const fromPath = location.state?.from?.pathname
+    const destination =
+      fromPath && (fromPath.startsWith('/admin') || fromPath.startsWith('/provider'))
+        ? toPortalPath(fromPath, merged)
+        : getPortalHomePath(merged)
+    navigate(destination, { replace: true })
+  }
+
+  const handleVendorLogin = async () => {
+    const response = await axios.post(`${API_URL}/mobile/vendor/auth/login`, {
+      phone: phone.trim(),
+      password: password.trim(),
+    })
+
+    const vendor = response.data.vendor
+    const authToken = response.data.token
+
+    if (!response.data.success || !vendor || !authToken) {
+      throw new Error(response.data.error || t('adminLogin.loginFailed'))
+    }
+
+    const merged = {
+      id: vendor.id,
+      name: vendor.name || vendor.businessName,
+      phone: vendor.phone,
+      email: vendor.email || null,
+      role: 'PROVIDER',
+      vendorType: vendor.vendorType ?? response.data.vendorType ?? null,
+      vendorStatus: vendor.status ?? response.data.status ?? null,
+      businessName: vendor.businessName,
+      avatar: vendor.avatar ?? null,
+      permissions: response.data.permissions ?? null,
+      isFullAdmin: false,
+      authSource: 'vendor',
+    }
+
+    finishLogin(merged, authToken)
+  }
+
+  const handleAdminLogin = async () => {
+    const response = await axios.post(`${API_URL}/auth/admin/login`, {
+      email: email.trim().toLowerCase(),
+      password: password.trim(),
+    })
+
+    const userData = response.data.user
+    const authToken = response.data.token
+
+    if (!userData || (userData.role !== 'ADMIN' && userData.role !== 'PROVIDER')) {
+      setError(t('adminLogin.noAccess'))
+      return
+    }
+
+    const merged = {
+      ...userData,
+      vendorType: response.data.vendorType ?? userData.vendorType ?? null,
+      vendorStatus: response.data.vendorStatus ?? userData.vendorStatus ?? null,
+      permissions: response.data.permissions ?? userData.permissions ?? null,
+      isFullAdmin: response.data.isFullAdmin === true || userData.role === 'ADMIN',
+      authSource: 'admin',
+    }
+
+    finishLogin(merged, authToken)
+  }
+
   const handleSubmit = async (e) => {
     e.preventDefault()
     setError('')
     setLoading(true)
 
     try {
-      const response = await axios.post(`${API_URL}/auth/admin/login`, {
-        email: email.trim().toLowerCase(),
-        password: password.trim(),
-      })
-
-      const userData = response.data.user
-      const authToken = response.data.token
-
-      if (!userData || (userData.role !== 'ADMIN' && userData.role !== 'PROVIDER')) {
-        setError(t('adminLogin.noAccess'))
-        setLoading(false)
-        return
+      if (isVendorPortal) {
+        await handleVendorLogin()
+      } else {
+        await handleAdminLogin()
       }
-
-      const merged = {
-        ...userData,
-        vendorType: response.data.vendorType ?? userData.vendorType ?? null,
-        vendorStatus: response.data.vendorStatus ?? userData.vendorStatus ?? null,
-        permissions: response.data.permissions ?? userData.permissions ?? null,
-        isFullAdmin: response.data.isFullAdmin === true || userData.role === 'ADMIN',
-      }
-
-      resetAdminSessionBootstrap()
-      localStorage.setItem('admin_token', authToken)
-      localStorage.setItem('admin_user', JSON.stringify(merged))
-      navigate('/admin/dashboard')
     } catch (err) {
       const isNetworkError = err.code === 'ERR_NETWORK' || err.message === 'Network Error'
       setError(
-        isNetworkError ? t('adminLogin.networkError') : err.response?.data?.error || t('adminLogin.loginFailed'),
+        isNetworkError
+          ? t('adminLogin.networkError')
+          : extractErrorMessage(err, err.message || t('adminLogin.loginFailed')),
       )
     } finally {
       setLoading(false)
@@ -148,17 +216,27 @@ export default function AdminLogin() {
             <div className="admin-login-v2__hero-text">
               <span className="admin-login-v2__badge">
                 <Shield className="h-3.5 w-3.5" aria-hidden />
-                {t('adminLogin.secured')}
+                {isVendorPortal
+                  ? (rtl ? 'دخول آمن لمزود الخدمة' : 'Secure vendor login')
+                  : t('adminLogin.secured')}
               </span>
               <h1>{brandTitle}</h1>
-              <p>{t('adminLogin.subtitle')}</p>
+              <p>
+                {isVendorPortal
+                  ? (rtl ? 'سجّل الدخول لإدارة حسابك كمزود خدمة' : 'Sign in to manage your vendor account')
+                  : t('adminLogin.subtitle')}
+              </p>
             </div>
           </div>
 
           <form className="admin-login-v2__form" onSubmit={handleSubmit} noValidate>
             <div className="admin-login-v2__form-head">
-              <h2>{t('adminLogin.title')}</h2>
-              <p>{t('adminLogin.formHint')}</p>
+              <h2>{isVendorPortal ? (rtl ? 'لوحة مزود الخدمة' : 'Vendor panel') : t('adminLogin.title')}</h2>
+              <p>
+                {isVendorPortal
+                  ? (rtl ? 'استخدم رقم الهاتف وكلمة المرور' : 'Use your phone number and password')
+                  : t('adminLogin.formHint')}
+              </p>
             </div>
 
             {error ? (
@@ -167,24 +245,45 @@ export default function AdminLogin() {
               </div>
             ) : null}
 
-            <div className="admin-login-v2__field">
-              <label htmlFor="admin-login-email">{t('adminLogin.email')}</label>
-              <div className="admin-login-v2__input-group" dir="ltr">
-                <span className="admin-login-v2__input-addon" aria-hidden>
-                  <Mail className="h-[18px] w-[18px]" />
-                </span>
-                <input
-                  id="admin-login-email"
-                  className="admin-login-v2__input-field"
-                  type="email"
-                  autoComplete="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  placeholder={t('adminLogin.emailPlaceholder')}
-                  required
-                />
+            {isVendorPortal ? (
+              <div className="admin-login-v2__field">
+                <label htmlFor="vendor-login-phone">{rtl ? 'رقم الهاتف' : 'Phone'}</label>
+                <div className="admin-login-v2__input-group" dir="ltr">
+                  <span className="admin-login-v2__input-addon" aria-hidden>
+                    <Phone className="h-[18px] w-[18px]" />
+                  </span>
+                  <input
+                    id="vendor-login-phone"
+                    className="admin-login-v2__input-field"
+                    type="tel"
+                    autoComplete="tel"
+                    value={phone}
+                    onChange={(e) => setPhone(e.target.value)}
+                    placeholder="0501634567"
+                    required
+                  />
+                </div>
               </div>
-            </div>
+            ) : (
+              <div className="admin-login-v2__field">
+                <label htmlFor="admin-login-email">{t('adminLogin.email')}</label>
+                <div className="admin-login-v2__input-group" dir="ltr">
+                  <span className="admin-login-v2__input-addon" aria-hidden>
+                    <Mail className="h-[18px] w-[18px]" />
+                  </span>
+                  <input
+                    id="admin-login-email"
+                    className="admin-login-v2__input-field"
+                    type="email"
+                    autoComplete="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    placeholder={t('adminLogin.emailPlaceholder')}
+                    required
+                  />
+                </div>
+              </div>
+            )}
 
             <div className="admin-login-v2__field">
               <label htmlFor="admin-login-password">{t('adminLogin.password')}</label>

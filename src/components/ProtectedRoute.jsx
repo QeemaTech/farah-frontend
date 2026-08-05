@@ -14,30 +14,38 @@ function ProtectedRoute({ children }) {
   }
 
   if (!isAuthenticated) {
-    // Always redirect to splash (which goes to onboarding) first
-    // This ensures onboarding is always shown first
-    return <Navigate to="/splash" replace />
+    const onboardingCompleted = localStorage.getItem('onboarding_completed')
+    if (!onboardingCompleted) {
+      return <Navigate to="/splash" replace />
+    }
+    return <Navigate to="/login" replace state={{ from: location }} />
   }
 
-  // Check if this is the location permission page - allow access
+  // Location permission screen itself — always allow
   if (location.pathname === '/location-permission') {
     return children
   }
 
-  // Check if location permission was granted
-  const locationPermission = localStorage.getItem('location_permission_granted')
-  
-  // If trying to access home or other protected routes, check location permission
-  if (!locationPermission || locationPermission === 'denied') {
-    // Redirect to location permission page first
-    return <Navigate to="/location-permission" replace />
+  // Provider/admin areas don't require the mobile location gate
+  const skipLocationGate =
+    location.pathname.startsWith('/provider') ||
+    location.pathname.startsWith('/admin')
+
+  if (!skipLocationGate) {
+    const locationPermission = localStorage.getItem('location_permission_granted')
+    // Only gate when the user has never been asked (null). 'denied' / 'true' both allow through.
+    if (!locationPermission) {
+      return (
+        <Navigate
+          to="/location-permission"
+          replace
+          state={{ from: location }}
+        />
+      )
+    }
   }
 
   return children
 }
 
 export default ProtectedRoute
-
-
-
-

@@ -23,7 +23,7 @@ import {
   Store,
   BookOpen,
 } from 'lucide-react'
-import { hasPermission, isFullAdminUser } from '../../admin/utils/adminSession'
+import { hasPermission, isFullAdminUser, toPortalPath } from '../../admin/utils/adminSession'
 
 const SLAUGHTER = ['SLAUGHTER_PROVIDER']
 const VENUE_ONLY = ['VENUE_PROVIDER']
@@ -124,7 +124,7 @@ export function filterAdminNav(user) {
     }
     return true
   }).map(({ path, labelKey, icon, section }) => ({
-    path,
+    path: toPortalPath(path, user),
     labelKey,
     icon,
     section: section || 'core',

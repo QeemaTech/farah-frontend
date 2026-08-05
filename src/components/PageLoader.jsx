@@ -5,6 +5,10 @@ import { formatImageSrc } from '../utils/imageUtils'
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8001/api'
 
+function isPortalPath(pathname) {
+  return pathname.startsWith('/admin') || pathname.startsWith('/provider')
+}
+
 function PageLoader() {
   const location = useLocation()
   const [loading, setLoading] = useState(false)
@@ -24,7 +28,7 @@ function PageLoader() {
 
   // Memoize route type to prevent unnecessary recalculations
   const routeType = useMemo(() => {
-    return location.pathname.startsWith('/admin') ? 'admin' : 'mobile'
+    return isPortalPath(location.pathname) ? 'admin' : 'mobile'
   }, [location.pathname])
 
   // Fetch settings once per route type (admin/mobile) - only when route type changes
@@ -86,23 +90,28 @@ function PageLoader() {
     const prevPath = lastPathnameRef.current
     const nextPath = location.pathname
 
-    // Skip overlay when navigating between admin pages (client-side SPA)
-    if (prevPath.startsWith('/admin') && nextPath.startsWith('/admin')) {
+    // Skip overlay inside admin/vendor portal (same desktop shell)
+    if (isPortalPath(prevPath) && isPortalPath(nextPath)) {
       lastPathnameRef.current = nextPath
       setLoading(false)
       return
     }
 
     // Don't show loader for redirects from splash/onboarding to home (common after login)
-    const isRedirectFromSplash = lastPathnameRef.current === '/splash' && location.pathname === '/home'
-    const isRedirectFromOnboarding = lastPathnameRef.current === '/onboarding' && location.pathname === '/home'
-    const isRedirectToHome = location.pathname === '/home'
+    const isRedirectFromSplash = prevPath === '/splash' && nextPath === '/home'
+    const isRedirectFromOnboarding = prevPath === '/onboarding' && nextPath === '/home'
     
     // Update last pathname immediately
-    lastPathnameRef.current = location.pathname
+    lastPathnameRef.current = nextPath
 
     // Skip loader for common redirects after login/register
     if (isRedirectFromSplash || isRedirectFromOnboarding) {
+      setLoading(false)
+      return
+    }
+
+    // Never show the mobile splash overlay when landing on the portal
+    if (isPortalPath(nextPath)) {
       setLoading(false)
       return
     }
@@ -153,9 +162,8 @@ function PageLoader() {
     }
   }, [location.pathname])
 
-  // Check if we're in admin dashboard
-  const isAdminRoute = location.pathname.startsWith('/admin')
-  
+  // Check if we're in admin/vendor dashboard
+  const isAdminRoute = isPortalPath(location.pathname)
   // Check if logo is valid using the same validation as formatImageSrc
   const logoSrc = formatImageSrc(appSettings.appLogo)
   const hasValidLogo = logoSrc !== null && logoSrc !== undefined

@@ -1,12 +1,13 @@
 import { Navigate } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext'
+import { getPostAuthPath } from '../utils/authRoutes'
 
 /**
  * PublicRoute - Redirects authenticated users away from public pages (login, onboarding)
  * Only allows access if user is NOT authenticated
  */
 function PublicRoute({ children }) {
-  const { isAuthenticated, loading } = useAuth()
+  const { user, isAuthenticated, loading } = useAuth()
 
   if (loading) {
     return (
@@ -20,14 +21,11 @@ function PublicRoute({ children }) {
     )
   }
 
-  // If user is authenticated, redirect to home
   if (isAuthenticated) {
-    return <Navigate to="/splash" replace />
+    return <Navigate to={getPostAuthPath(user)} replace />
   }
 
-  // User is not authenticated, allow access to public pages
   return children
 }
 
 export default PublicRoute
-

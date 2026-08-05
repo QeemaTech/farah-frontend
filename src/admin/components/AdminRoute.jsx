@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { Navigate, useLocation } from 'react-router-dom'
 import axios from 'axios'
-import { readAdminUser, getAdminToken } from '../utils/adminSession'
+import { readAdminUser, getAdminToken, usesProviderApis, isFullAdminUser, getPortalLoginPath } from '../utils/adminSession'
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8001/api'
 
@@ -12,6 +12,13 @@ let bootstrapPromise = null
 function runAdminSessionBootstrap(token) {
   if (adminSessionBootstrap.done) return Promise.resolve()
   if (bootstrapPromise) return bootstrapPromise
+
+  const existing = readAdminUser()
+  // Vendor mobile tokens are not valid on /auth/admin/me
+  if (existing?.authSource === 'vendor') {
+    adminSessionBootstrap.done = true
+    return Promise.resolve()
+  }
 
   adminSessionBootstrap.inFlight = true
   bootstrapPromise = axios
@@ -27,6 +34,7 @@ function runAdminSessionBootstrap(token) {
           vendorStatus: res.data.vendorStatus ?? null,
           permissions: res.data.permissions ?? null,
           isFullAdmin: !!res.data.isFullAdmin,
+          authSource: 'admin',
         }
         localStorage.setItem('admin_user', JSON.stringify(merged))
       }
@@ -89,17 +97,17 @@ function AdminRoute({ children }) {
   }, [adminToken])
 
   if (authLost) {
-    return <Navigate to="/admin/login" state={{ from: location }} replace />
+    return <Navigate to={getPortalLoginPath(location.pathname)} state={{ from: location }} replace />
   }
 
   if (!adminToken) {
-    return <Navigate to="/admin/login" state={{ from: location }} replace />
+    return <Navigate to={getPortalLoginPath(location.pathname)} state={{ from: location }} replace />
   }
 
   const adminUser = readAdminUser()
   if (!adminUser) {
     return bootstrapped ? (
-      <Navigate to="/admin/login" state={{ from: location }} replace />
+      <Navigate to={getPortalLoginPath(location.pathname)} state={{ from: location }} replace />
     ) : (
       <div className="flex min-h-screen w-full items-center justify-center bg-slate-100">
         <div className="h-10 w-10 animate-spin rounded-full border-2 border-slate-300 border-t-indigo-600" />
@@ -112,10 +120,25 @@ function AdminRoute({ children }) {
       <div className="flex min-h-screen items-center justify-center">
         <div className="text-center">
           <p className="mb-4 text-red-600">ليس لديك صلاحية للوصول إلى لوحة التحكم</p>
-          <Navigate to="/admin/login" replace />
+          <Navigate to={getPortalLoginPath(location.pathname)} replace />
         </div>
       </div>
     )
+  }
+
+  // Keep vendors on /provider/* and full admins on /admin/*
+  if (
+    usesProviderApis(adminUser) &&
+    location.pathname.startsWith('/admin') &&
+    location.pathname !== '/admin/login'
+  ) {
+    const next = `${location.pathname.replace(/^\/admin/, '/provider')}${location.search}${location.hash}`
+    return <Navigate to={next} replace />
+  }
+
+  if (isFullAdminUser(adminUser) && location.pathname.startsWith('/provider')) {
+    const next = `${location.pathname.replace(/^\/provider/, '/admin')}${location.search}${location.hash}`
+    return <Navigate to={next} replace />
   }
 
   return children

@@ -1,4 +1,4 @@
-import { Routes, Route, Navigate } from 'react-router-dom'
+import { Routes, Route, Navigate, useLocation } from 'react-router-dom'
 import AdminLogin from './pages/AdminLogin'
 import AdminDashboard from './pages/Dashboard'
 import AdminUsers from './pages/Users'
@@ -66,6 +66,7 @@ import { ThemeProvider } from '../contexts/ThemeContext'
 import { Toaster } from 'react-hot-toast'
 import { useTranslation } from 'react-i18next'
 import { AdminUiThemeProvider } from '../hooks/useTheme'
+import { getPortalLoginPath } from './utils/adminSession'
 
 const SLAUGHTER_VENDOR_TYPES = ['SLAUGHTER_PROVIDER']
 const VENUE_VENDOR_TYPES = ['VENUE_PROVIDER']
@@ -95,6 +96,9 @@ function AdminToaster() {
 }
 
 function AdminApp() {
+  const location = useLocation()
+  const loginPath = getPortalLoginPath(location.pathname)
+
   return (
     <AdminUiThemeProvider>
       <ThemeProvider>
@@ -595,11 +599,11 @@ function AdminApp() {
         />
         </Route>
 
-        {/* Redirect /admin to /admin/login */}
-        <Route path="" element={<Navigate to="/admin/login" replace />} />
+        {/* Redirect empty portal root to login */}
+        <Route path="" element={<Navigate to={loginPath} replace />} />
         
-        {/* Catch all admin routes - redirect to login */}
-        <Route path="*" element={<Navigate to="/admin/login" replace />} />
+        {/* Catch all portal routes - redirect to login */}
+        <Route path="*" element={<Navigate to={loginPath} replace />} />
       </Routes>
       <AdminToaster />
     </ThemeProvider>

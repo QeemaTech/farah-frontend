@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import axios from 'axios'
 import { useTranslation } from 'react-i18next'
-import { API_URL, isFullAdminUser, isSlaughterOnlyVendor, readAdminUser } from '../utils/adminSession'
+import { API_URL, isFullAdminUser, isSlaughterOnlyVendor, readAdminUser, getPortalLoginPath } from '../utils/adminSession'
 import {
   ResponsiveContainer,
   BarChart,
@@ -43,7 +43,7 @@ function Dashboard() {
     try {
       const token = localStorage.getItem('admin_token')
       if (!token) {
-        navigate('/admin/login')
+        navigate(getPortalLoginPath(window.location.pathname))
         return
       }
       const user = readAdminUser()
@@ -79,7 +79,7 @@ function Dashboard() {
       if (error.response?.status === 401) {
         localStorage.removeItem('admin_token')
         localStorage.removeItem('admin_user')
-        navigate('/admin/login')
+        navigate(getPortalLoginPath(window.location.pathname))
       }
     } finally {
       setLoading(false)

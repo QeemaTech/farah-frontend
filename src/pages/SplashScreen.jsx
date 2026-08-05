@@ -3,11 +3,14 @@ import { useNavigate } from 'react-router-dom'
 import axios from 'axios'
 import StatusBar from '../components/StatusBar'
 import { formatImageSrc } from '../utils/imageUtils'
+import { useAuth } from '../contexts/AuthContext'
+import { getPostAuthPath } from '../utils/authRoutes'
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8001/api'
 
 function SplashScreen() {
   const navigate = useNavigate()
+  const { user, isAuthenticated, loading: authLoading } = useAuth()
   const [appLogo, setAppLogo] = useState(null)
   const [appName, setAppName] = useState('أفراحنا')
   const [appNameAr, setAppNameAr] = useState('أفراحنا')
@@ -49,13 +52,20 @@ function SplashScreen() {
   }, [])
 
   useEffect(() => {
-    // Show splash for 2 seconds, then navigate to onboarding
+    if (authLoading) return
+
     const timer = setTimeout(() => {
-      navigate('/onboarding', { replace: true })
+      if (isAuthenticated) {
+        navigate(getPostAuthPath(user), { replace: true })
+        return
+      }
+
+      const onboardingCompleted = localStorage.getItem('onboarding_completed')
+      navigate(onboardingCompleted ? '/login' : '/onboarding', { replace: true })
     }, 2000)
 
     return () => clearTimeout(timer)
-  }, [navigate])
+  }, [navigate, authLoading, isAuthenticated, user])
 
   // Check if logo is valid using the same validation as formatImageSrc
   const logoSrc = formatImageSrc(appLogo)

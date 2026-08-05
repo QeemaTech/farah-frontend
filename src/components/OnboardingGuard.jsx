@@ -1,30 +1,36 @@
 import { useEffect, useState } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext'
+import { getPostAuthPath, isPublicAuthPath } from '../utils/authRoutes'
 
 function OnboardingGuard({ children }) {
   const navigate = useNavigate()
   const location = useLocation()
-  const { isAuthenticated, loading: authLoading } = useAuth()
+  const { user, isAuthenticated, loading: authLoading } = useAuth()
   const [isChecking, setIsChecking] = useState(true)
 
   useEffect(() => {
-    // Wait for auth to finish loading first
     if (authLoading) {
       return
     }
 
-    // ALWAYS allow admin routes - they are completely separate and don't need onboarding
-    if (location.pathname.startsWith('/admin')) {
+    // Admin + /provider/* → vendor portal (skip mobile onboarding/login)
+    if (
+      location.pathname.startsWith('/admin') ||
+      location.pathname.startsWith('/provider')
+    ) {
       setIsChecking(false)
       return
     }
 
-    // If user is authenticated, allow access to protected routes
     if (isAuthenticated) {
-      // If authenticated user tries to access root, splash, or onboarding, redirect to home
-      if (location.pathname === '/' || location.pathname === '/splash' || location.pathname === '/onboarding') {
-        navigate('/home', { replace: true })
+      // Keep authenticated users off the entry/auth funnel
+      if (
+        location.pathname === '/' ||
+        location.pathname === '/splash' ||
+        location.pathname === '/onboarding'
+      ) {
+        navigate(getPostAuthPath(user), { replace: true })
         setIsChecking(false)
         return
       }
@@ -32,38 +38,31 @@ function OnboardingGuard({ children }) {
       return
     }
 
-    // If on splash or onboarding page, always allow access
-    if (location.pathname === '/splash' || location.pathname === '/onboarding') {
+    // Unauthenticated: always allow splash / onboarding / login funnel
+    if (isPublicAuthPath(location.pathname)) {
       setIsChecking(false)
       return
     }
 
-    // ALWAYS redirect root path to splash (which goes to onboarding)
-    // This ensures onboarding is always the first thing users see
     if (location.pathname === '/') {
       navigate('/splash', { replace: true })
       setIsChecking(false)
       return
     }
 
-    // For other routes, check if onboarding was completed
     const onboardingCompleted = localStorage.getItem('onboarding_completed')
-    
-    // If onboarding not completed, redirect to splash (which will go to onboarding)
+
+    // Deep links (e.g. /provider/dashboard) before onboarding → splash first
     if (!onboardingCompleted) {
-      // Only redirect if not already on splash or onboarding
-      if (location.pathname !== '/splash' && location.pathname !== '/onboarding') {
-        navigate('/splash', { replace: true })
-      }
+      navigate('/splash', { replace: true })
       setIsChecking(false)
       return
     }
 
-    // Onboarding completed, allow access to login, register, OTP, and other routes
+    // Onboarding done but not logged in — let ProtectedRoute send them to login
     setIsChecking(false)
-  }, [navigate, location.pathname, isAuthenticated, authLoading])
+  }, [navigate, location.pathname, isAuthenticated, authLoading, user])
 
-  // Show loading while checking onboarding status
   if (isChecking || authLoading) {
     return (
       <div className="flex items-center justify-center min-h-screen bg-white max-w-[390px] mx-auto">
@@ -76,7 +75,6 @@ function OnboardingGuard({ children }) {
     )
   }
 
-  // Render children (all routes)
   return children
 }
 

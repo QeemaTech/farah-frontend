@@ -3,6 +3,8 @@ import {
   readAdminUser,
   isFullAdminUser,
   hasPermission,
+  getPortalHomePath,
+  getPortalLoginPath,
 } from '../utils/adminSession'
 
 /**
@@ -18,44 +20,44 @@ import {
 function PermissionRoute({ children, requireFullAdmin, permission, hideForVendorTypes, vendorTypesOnly, providerPortal, hideForFullAdmin }) {
   const location = useLocation()
   const user = readAdminUser()
+  const home = getPortalHomePath(user)
+  const loginPath = getPortalLoginPath(location.pathname)
 
   if (!user) {
-    return <Navigate to="/admin/login" state={{ from: location }} replace />
+    return <Navigate to={loginPath} state={{ from: location }} replace />
   }
 
   const full = isFullAdminUser(user)
 
   if (requireFullAdmin && !full) {
-    return <Navigate to="/admin/dashboard" replace />
+    return <Navigate to={home} replace />
   }
 
   if (hideForFullAdmin && full) {
-    return <Navigate to="/admin/dashboard" replace />
+    return <Navigate to={home} replace />
   }
 
   if (permission && !hasPermission(user, permission.resource, permission.action)) {
-    // Avoid infinite redirect when already on /admin/dashboard (e.g. stale permissions in localStorage).
-    const fallback =
-      location.pathname === '/admin/dashboard' ? '/admin/login' : '/admin/dashboard'
-    return <Navigate to={fallback} replace state={{ from: location }} />
+    // Never bounce an authenticated vendor off their home to login
+    const fallback = location.pathname === home ? loginPath : home
+    if (location.pathname === home) {
+      // Stale/missing permission list — still allow portal home for PROVIDER
+      if (user.role === 'PROVIDER') return children
+      return <Navigate to={fallback} replace state={{ from: location }} />
+    }
+    return <Navigate to={fallback} replace />
   }
 
   if (user.role === 'PROVIDER' && hideForVendorTypes?.length && hideForVendorTypes.includes(user.vendorType)) {
-    const fallback =
-      location.pathname === '/admin/dashboard' ? '/admin/login' : '/admin/dashboard'
-    return <Navigate to={fallback} replace />
+    return <Navigate to={home} replace />
   }
 
   if (vendorTypesOnly?.length && user.role === 'PROVIDER' && !vendorTypesOnly.includes(user.vendorType)) {
-    const fallback =
-      location.pathname === '/admin/dashboard' ? '/admin/login' : '/admin/dashboard'
-    return <Navigate to={fallback} replace />
+    return <Navigate to={home} replace />
   }
 
   if (providerPortal && !full && user.role !== 'PROVIDER') {
-    const fallback =
-      location.pathname === '/admin/dashboard' ? '/admin/login' : '/admin/dashboard'
-    return <Navigate to={fallback} replace />
+    return <Navigate to={home} replace />
   }
 
   return children
