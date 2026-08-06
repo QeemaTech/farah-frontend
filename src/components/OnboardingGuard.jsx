@@ -14,6 +14,13 @@ function OnboardingGuard({ children }) {
       return
     }
 
+    // Root → provider login (never mobile splash)
+    if (location.pathname === '/') {
+      navigate('/provider/login', { replace: true })
+      setIsChecking(false)
+      return
+    }
+
     // Admin + /provider/* → vendor portal (skip mobile onboarding/login)
     if (
       location.pathname.startsWith('/admin') ||
@@ -26,7 +33,6 @@ function OnboardingGuard({ children }) {
     if (isAuthenticated) {
       // Keep authenticated users off the entry/auth funnel
       if (
-        location.pathname === '/' ||
         location.pathname === '/splash' ||
         location.pathname === '/onboarding'
       ) {
@@ -40,12 +46,6 @@ function OnboardingGuard({ children }) {
 
     // Unauthenticated: always allow splash / onboarding / login funnel
     if (isPublicAuthPath(location.pathname)) {
-      setIsChecking(false)
-      return
-    }
-
-    if (location.pathname === '/') {
-      navigate('/splash', { replace: true })
       setIsChecking(false)
       return
     }

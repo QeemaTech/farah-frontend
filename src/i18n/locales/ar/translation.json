@@ -26,6 +26,7 @@
     "reports": "التقارير",
     "vendorsMap": "خريطة المتاجر",
     "wallets": "محافظ الموردين",
+    "withdrawals": "طلبات السحب",
     "myWallet": "محفظتي",
     "myReports": "التقارير المالية",
     "vendorTeam": "الفريق والموظفون",
@@ -561,6 +562,42 @@
     "allTypes": "كل الأنواع",
     "allStatuses": "كل الحالات",
     "linkLedger": "عرض في دفتر الأستاذ"
+  },
+  "withdrawals": {
+    "pageTitle": "طلبات سحب الأرباح",
+    "subtitle": "مراجعة طلبات الموردين والموافقة عليها وتحويل المبالغ",
+    "loadFailed": "فشل تحميل طلبات السحب",
+    "empty": "لا توجد طلبات سحب",
+    "searchPlaceholder": "بحث بالاسم أو الهاتف أو البريد",
+    "statPending": "طلبات معلقة (الصفحة)",
+    "statCompleted": "مكتملة (الصفحة)",
+    "statPendingAmount": "مبلغ معلق (الصفحة)",
+    "colVendor": "المورد",
+    "colAmount": "المبلغ",
+    "colBank": "الحساب البنكي",
+    "colStatus": "الحالة",
+    "colDate": "التاريخ",
+    "colActions": "إجراءات",
+    "approve": "موافقة",
+    "reject": "رفض",
+    "complete": "تم التحويل",
+    "adminNote": "ملاحظة للمورد",
+    "adminNotePlaceholder": "اختياري — تظهر للمورد",
+    "approveSuccess": "تمت الموافقة على الطلب",
+    "rejectSuccess": "تم رفض الطلب",
+    "completeSuccess": "تم إتمام التحويل وخصم الرصيد",
+    "filter": {
+      "all": "الكل",
+      "pending": "معلق",
+      "approved": "موافق عليه",
+      "completed": "مكتمل",
+      "rejected": "مرفوض"
+    },
+    "modal": {
+      "approve": "الموافقة على طلب السحب",
+      "reject": "رفض طلب السحب",
+      "complete": "تأكيد التحويل البنكي"
+    }
   },
   "reports": {
     "title": "مركز التقارير",

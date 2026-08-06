@@ -123,10 +123,10 @@ function AppRoutes() {
             } 
           />
           
-          {/* Root — mobile entry; OnboardingGuard / auth decide next step */}
+          {/* Root — provider portal entry */}
           <Route
             path="/"
-            element={<Navigate to="/splash" replace />}
+            element={<Navigate to="/provider/login" replace />}
           />
           
           {/* Home route - Protected */}

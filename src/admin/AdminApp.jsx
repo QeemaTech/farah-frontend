@@ -36,6 +36,7 @@ import VendorWallets from './pages/VendorWallets'
 import WalletDetails from './pages/WalletDetails'
 import CommissionReports from './pages/CommissionReports'
 import VendorWallet from './pages/VendorWallet'
+import Withdrawals from './pages/Withdrawals'
 import VendorReports from './pages/VendorReports'
 import VendorProfileSettings from './pages/VendorProfileSettings'
 import VendorTeam from './pages/VendorTeam'
@@ -398,6 +399,14 @@ function AdminApp() {
           element={
             <Protected requireFullAdmin>
               <VendorWallets />
+            </Protected>
+          }
+        />
+        <Route
+          path="withdrawals"
+          element={
+            <Protected requireFullAdmin>
+              <Withdrawals />
             </Protected>
           }
         />

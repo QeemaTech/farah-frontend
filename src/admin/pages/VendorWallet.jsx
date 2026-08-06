@@ -208,7 +208,7 @@ export default function VendorWallet() {
     >
       {!loading ? (
         <AdminContent className="gap-6">
-          <UiStats className="!grid-cols-1 sm:!grid-cols-2">
+          <UiStats className="!grid-cols-1 sm:!grid-cols-2 lg:!grid-cols-4">
             <UiStat
               icon={Wallet}
               iconTone="emerald"
@@ -220,6 +220,18 @@ export default function VendorWallet() {
               iconTone="amber"
               value={formatCurrency(pendingPayoutTotal, cur)}
               label={t('vendorWallet.pendingPayouts')}
+            />
+            <UiStat
+              icon={Wallet}
+              iconTone="indigo"
+              value={formatCurrency(wallet?.totalEarnings || 0, cur)}
+              label={t('vendorFinance.totalEarnings')}
+            />
+            <UiStat
+              icon={CreditCard}
+              iconTone="slate"
+              value={formatCurrency(wallet?.totalWithdrawn || 0, cur)}
+              label={t('vendorFinance.totalWithdrawn')}
             />
           </UiStats>
 

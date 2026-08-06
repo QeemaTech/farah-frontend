@@ -26,6 +26,7 @@
     "reports": "Reports",
     "vendorsMap": "Vendors map",
     "wallets": "Vendor wallets",
+    "withdrawals": "Withdrawal requests",
     "myWallet": "My wallet",
     "myReports": "Financial reports",
     "vendorTeam": "Team & staff",
@@ -561,6 +562,42 @@
     "allTypes": "All types",
     "allStatuses": "All statuses",
     "linkLedger": "View in general ledger"
+  },
+  "withdrawals": {
+    "pageTitle": "Withdrawal requests",
+    "subtitle": "Review vendor payout requests, approve, and mark bank transfers complete",
+    "loadFailed": "Failed to load withdrawal requests",
+    "empty": "No withdrawal requests",
+    "searchPlaceholder": "Search by name, phone, or email",
+    "statPending": "Pending (this page)",
+    "statCompleted": "Completed (this page)",
+    "statPendingAmount": "Pending amount (this page)",
+    "colVendor": "Vendor",
+    "colAmount": "Amount",
+    "colBank": "Bank account",
+    "colStatus": "Status",
+    "colDate": "Date",
+    "colActions": "Actions",
+    "approve": "Approve",
+    "reject": "Reject",
+    "complete": "Mark paid",
+    "adminNote": "Note to vendor",
+    "adminNotePlaceholder": "Optional — visible to vendor",
+    "approveSuccess": "Request approved",
+    "rejectSuccess": "Request rejected",
+    "completeSuccess": "Payout completed and balance debited",
+    "filter": {
+      "all": "All",
+      "pending": "Pending",
+      "approved": "Approved",
+      "completed": "Completed",
+      "rejected": "Rejected"
+    },
+    "modal": {
+      "approve": "Approve withdrawal",
+      "reject": "Reject withdrawal",
+      "complete": "Confirm bank transfer"
+    }
   },
   "reports": {
     "title": "Reports center",

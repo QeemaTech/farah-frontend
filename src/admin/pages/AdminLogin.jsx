@@ -13,6 +13,9 @@ import { resetAdminSessionBootstrap } from '../components/AdminRoute'
 function extractErrorMessage(err, fallback) {
   const data = err.response?.data
   if (!data) return fallback
+  if (Array.isArray(data.details) && data.details.length) {
+    return data.details.map((e) => e.message || String(e)).join(' · ')
+  }
   if (typeof data.error === 'string') return data.error
   if (typeof data.message === 'string') return data.message
   if (Array.isArray(data.errors) && data.errors.length) {
@@ -22,6 +25,13 @@ function extractErrorMessage(err, fallback) {
     return data.error.message || JSON.stringify(data.error)
   }
   return fallback
+}
+
+function looksLikePhone(value) {
+  const raw = String(value || '').trim()
+  if (!raw || raw.includes('@')) return false
+  const digits = raw.replace(/\D/g, '')
+  return digits.length >= 9 && digits.length <= 15
 }
 
 export default function AdminLogin() {
@@ -104,9 +114,9 @@ export default function AdminLogin() {
     navigate(destination, { replace: true })
   }
 
-  const handleVendorLogin = async () => {
+  const handleVendorLogin = async (phoneValue = phone) => {
     const response = await axios.post(`${API_URL}/mobile/vendor/auth/login`, {
-      phone: phone.trim(),
+      phone: phoneValue.trim(),
       password: password.trim(),
     })
 
@@ -167,8 +177,15 @@ export default function AdminLogin() {
     setLoading(true)
 
     try {
-      if (isVendorPortal) {
-        await handleVendorLogin()
+      const useVendorLogin = isVendorPortal || looksLikePhone(email)
+
+      if (useVendorLogin) {
+        const loginPhone = isVendorPortal ? phone : email
+        if (!loginPhone.trim()) {
+          setError(isVendorPortal ? (rtl ? 'رقم الهاتف مطلوب' : 'Phone number is required') : t('adminLogin.loginFailed'))
+          return
+        }
+        await handleVendorLogin(loginPhone)
       } else {
         await handleAdminLogin()
       }

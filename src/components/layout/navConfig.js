@@ -22,6 +22,7 @@ import {
   Wallet,
   Store,
   BookOpen,
+  Banknote,
 } from 'lucide-react'
 import { hasPermission, isFullAdminUser, toPortalPath } from '../../admin/utils/adminSession'
 
@@ -84,6 +85,7 @@ export const ADMIN_NAV_ITEMS = [
   { path: '/admin/reports', labelKey: 'nav.reports', icon: FileText, section: 'finance', requireFullAdmin: true },
   { path: '/admin/vendors-map', labelKey: 'nav.vendorsMap', icon: MapPin, section: 'finance', requireFullAdmin: true },
   { path: '/admin/wallets', labelKey: 'nav.wallets', icon: CreditCard, section: 'finance', requireFullAdmin: true },
+  { path: '/admin/withdrawals', labelKey: 'nav.withdrawals', icon: Banknote, section: 'finance', requireFullAdmin: true },
   { path: '/admin/commission', labelKey: 'nav.commission', icon: Percent, section: 'finance', requireFullAdmin: true },
 
   { path: '/admin/vendor/wallet', labelKey: 'nav.myWallet', icon: CreditCard, section: 'provider', providerPortal: true, permission: { resource: 'admin', action: 'dashboard' } },
