@@ -169,14 +169,12 @@ function BookingConfirmation() {
         // If services array is provided, map to objects with location info
         servicesArray = booking.services.map(s => {
           const serviceId = typeof s === 'string' ? s : (s.id || s.serviceId);
-          const servicePrice = typeof s === 'object' ? (s.price || 0) : 0;
           
           // For service-only bookings (no venue), include location info in each service
           if (!booking.venueId) {
             return {
               serviceId: serviceId,
               id: serviceId, // Also include id for compatibility
-              price: servicePrice,
               date: booking.date instanceof Date ? booking.date.toISOString() : (booking.date || new Date().toISOString()),
               startTime: booking.startTime || null,
               endTime: booking.endTime || null,
@@ -191,7 +189,6 @@ function BookingConfirmation() {
             return typeof s === 'string' ? s : {
               serviceId: serviceId,
               id: serviceId,
-              price: servicePrice,
             };
           }
         }).filter(Boolean);
@@ -201,7 +198,6 @@ function BookingConfirmation() {
           servicesArray = booking.serviceIds.map(serviceId => ({
             serviceId: serviceId,
             id: serviceId,
-            price: 0, // Will be calculated by backend
             date: booking.date instanceof Date ? booking.date.toISOString() : (booking.date || new Date().toISOString()),
             startTime: booking.startTime || null,
             endTime: booking.endTime || null,
